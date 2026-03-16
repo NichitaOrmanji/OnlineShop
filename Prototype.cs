@@ -2,31 +2,42 @@ using System;
 
 namespace OnlineShop
 {
-    // 1. Прототип (Prototype)
+    // 1. Прототип (Prototype) - задает интерфейс клонирования
     public abstract class OrderPrototype
     {
-        
         public required string CustomerName { get; set; }
+        public DateTime OrderDate { get; set; }
         
         public abstract OrderPrototype Clone();
-        public abstract void ShowInfo();
+        public abstract string GetSummary(); // Для вывода на сайт
     }
 
     // 2. Конкретный прототип (ConcretePrototype)
     public class SimpleOrder : OrderPrototype
     {
         public string ProductName { get; set; }
+        public double Price { get; set; }
 
-        public SimpleOrder(string product) => ProductName = product;
-
-        public override OrderPrototype Clone()
+        public SimpleOrder(string product, double price)
         {
-            Console.WriteLine($"--- Клонирование заказа на {ProductName} ---");
-            // MemberwiseClone копирует все поля, включая CustomerName
-            return (OrderPrototype)this.MemberwiseClone();
+            ProductName = product;
+            Price = price;
+            OrderDate = DateTime.Now;
         }
 
-        public override void ShowInfo() 
-            => Console.WriteLine($"Заказ: {ProductName} для клиента: {CustomerName}");
+        // Реализация клонирования (Мелкое копирование)
+        public override OrderPrototype Clone()
+        {
+            // MemberwiseClone копирует все значимые поля и ссылки
+            var copy = (SimpleOrder)this.MemberwiseClone();
+            copy.OrderDate = DateTime.Now; // Обновляем дату для нового (клонированного) заказа
+            return copy;
+        }
+
+        public override string GetSummary() 
+            => $"Заказ: {ProductName} | Цена: ${Price} | Клиент: {CustomerName} | Дата: {OrderDate.ToShortDateString()}";
+
+        // Оставляем старый метод для совместимости с консолью
+        public void ShowInfo() => Console.WriteLine(GetSummary());
     }
 }
