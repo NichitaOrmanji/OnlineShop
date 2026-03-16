@@ -28,5 +28,13 @@ class Program
         // Получаем готовый продукт
         Computer myPC = gamingBuilder.GetResult();
         myPC.Show();
+
+        // Паттерн 3: Factory Method
+        Console.WriteLine("\n--- Выбор доставки (Factory Method) ---");
+
+        // Клиент хочет экспресс-доставку
+        DeliveryService service = new AirLogistics();
+        service.SendOrder();
+            
     }
 }
