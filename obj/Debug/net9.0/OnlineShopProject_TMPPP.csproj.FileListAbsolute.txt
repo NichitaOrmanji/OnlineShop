@@ -1,0 +1,15 @@
+D:\OnlineShopProject_TMPPP\bin\Debug\net9.0\OnlineShopProject_TMPPP.exe
+D:\OnlineShopProject_TMPPP\bin\Debug\net9.0\OnlineShopProject_TMPPP.deps.json
+D:\OnlineShopProject_TMPPP\bin\Debug\net9.0\OnlineShopProject_TMPPP.runtimeconfig.json
+D:\OnlineShopProject_TMPPP\bin\Debug\net9.0\OnlineShopProject_TMPPP.dll
+D:\OnlineShopProject_TMPPP\bin\Debug\net9.0\OnlineShopProject_TMPPP.pdb
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.GeneratedMSBuildEditorConfig.editorconfig
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.AssemblyInfoInputs.cache
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.AssemblyInfo.cs
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.csproj.CoreCompileInputs.cache
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.sourcelink.json
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.dll
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\refint\OnlineShopProject_TMPPP.dll
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.pdb
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\OnlineShopProject_TMPPP.genruntimeconfig.cache
+D:\OnlineShopProject_TMPPP\obj\Debug\net9.0\ref\OnlineShopProject_TMPPP.dll
