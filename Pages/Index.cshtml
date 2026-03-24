@@ -1,63 +1,112 @@
 ﻿@page
 @model IndexModel
+@using OnlineShop
 @{
-    ViewData["Title"] = "Главная - " + Model.StoreName;
+    var settings = ShopSettings.GetInstance();
 }
 
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-primary">🚀 @Model.StoreName</h1>
-        <p class="lead">Демонстрация 5 порождающих паттернов проектирования в реальном времени</p>
-        <hr />
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h1 class="fw-bold text-primary">TechPoint <span class="text-dark">Store</span></h1>
+        
+        <form method="post" asp-page-handler="ChangeCurrency" class="d-flex align-items-center">
+            <span class="me-2 small text-muted">Валюта:</span>
+            <select name="currency" onchange="this.form.submit()" class="form-select form-select-sm">
+                @if (settings.Currency == "USD")
+                {
+                    <option value="USD" selected>USD ($)</option>
+                }
+                else
+                {
+                    <option value="USD">USD ($)</option>
+                }
+                @if (settings.Currency == "EUR")
+                {
+                    <option value="EUR" selected>EUR (€)</option>
+                }
+                else
+                {
+                    <option value="EUR">EUR (€)</option>
+                }
+                @if (settings.Currency == "MDL")
+                {
+                    <option value="MDL" selected>MDL (L)</option>
+                }
+                else
+                {
+                    <option value="MDL">MDL (L)</option>
+                }
+            </select>
+        </form>
     </div>
 
     <div class="row">
         <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">📜 Лог операций магазина (Singleton History)</h5>
+            <h4 class="mb-4">📱 Доступные гаджеты</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 p-3">
+                        <h5>iPhone 15 Pro</h5>
+                        <p class="text-primary fw-bold">@Model.FormatPrice(1199)</p>
+                        <form method="post" asp-page-handler="AddToCart" asp-route-item="iPhone 15 Pro" asp-route-price="1199">
+                            <button class="btn btn-outline-primary w-100">В корзину</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body" style="background-color: #f8f9fa; max-height: 500px; overflow-y: auto;">
-                    @if (Model.ShopHistory.Count == 0)
-                    {
-                        <p class="text-muted">История пуста. Обновите страницу, чтобы запустить паттерны.</p>
-                    }
-                    else
-                    {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var record in Model.ShopHistory)
-                            {
-                                <li class="list-group-item bg-transparent border-bottom">
-                                    <span class="badge bg-info text-dark me-2">Info</span> @record
-                                </li>
-                            }
-                        </ul>
-                    }
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 p-3">
+                        <h5>MacBook Pro 14</h5>
+                        <p class="text-primary fw-bold">@Model.FormatPrice(2500)</p>
+                        <form method="post" asp-page-handler="AddToCart" asp-route-item="MacBook Pro 14" asp-route-price="2500">
+                            <button class="btn btn-outline-primary w-100">В корзину</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm border-primary mb-4">
-                <div class="card-body">
-                    <h5 class="card-title text-primary font-weight-bold">Как это работает?</h5>
-                    <p class="card-text small">
-                        Каждое обновление страницы заново инициализирует:
-                        <br />• <b>Abstract Factory</b> (Товары)
-                        <br />• <b>Builder</b> (Сборка ПК)
-                        <br />• <b>Factory Method</b> (Логистика)
-                        <br />• <b>Prototype</b> (Клонирование)
-                        <br />Все данные сохраняются в <b>Singleton</b>.
-                    </p>
-                    <a href="/" class="btn btn-primary w-100">Обновить страницу</a>
-                </div>
+            <div class="card shadow border-0 p-3 bg-light">
+                <h4 class="d-flex justify-content-between">
+                    🛒 Корзина 
+                    <span class="badge bg-primary rounded-pill">@settings.Cart.Count</span>
+                </h4>
+                <hr>
+                <ul class="list-unstyled mb-4">
+                    @if (settings.Cart.Count == 0) {
+                        <li class="text-muted small text-center">Корзина пуста</li>
+                    }
+                    @foreach (var item in settings.Cart) {
+                        <li class="border-bottom py-1 small">✅ @item</li>
+                    }
+                </ul>
+                
+                @if (settings.Cart.Count > 0) {
+                    <form method="post" asp-page-handler="Checkout">
+                        <label class="small fw-bold">Доставка:</label>
+                        <select name="deliveryType" class="form-select form-select-sm mb-3">
+                            <option value="air">✈️ Авиа (Быстро)</option>
+                            <option value="ground">🚚 Наземная (Обычная)</option>
+                        </select>
+                        <button class="btn btn-success w-100 fw-bold">Оформить заказ</button>
+                    </form>
+                }
             </div>
 
-            <div class="alert alert-secondary shadow-sm">
-                <strong>Статус системы:</strong>
-                <br />Проект: OnlineShop Web
-                <br />Версия: 2.0 (Scaled)
-            </div>
+            <form method="post" asp-page-handler="RepeatLast" class="mt-3">
+                <button class="btn btn-link btn-sm w-100 text-decoration-none">🔁 Повторить прошлый заказ</button>
+            </form>
         </div>
+    </div>
+
+    <div class="mt-5 border-top pt-3">
+        <details>
+            <summary class="text-muted small" style="cursor:pointer">System Debug Log (Singleton)</summary>
+            <div class="bg-dark text-success p-3 rounded mt-2 small shadow-inner" style="max-height: 200px; overflow-y: auto; font-family: monospace;">
+                @foreach (var log in settings.GetLogs().AsEnumerable().Reverse()) {
+                    <div>> @log</div>
+                }
+            </div>
+        </details>
     </div>
 </div>

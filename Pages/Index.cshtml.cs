@@ -1,56 +1,73 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using OnlineShop; 
-
+using OnlineShop;
 namespace OnlineShopProject_TMPPP.Pages 
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-        
-        // Список для вывода всей истории работы паттернов на страницу
-        public List<string> ShopHistory { get; set; } = new List<string>();
-        
-        // Название магазина из Синглтона
-        public string StoreName { get; set; } = "";
-
-        public IndexModel(ILogger<IndexModel> logger)
+        // Вспомогательный метод для отображения цены с учетом Адаптера
+        public string FormatPrice(double usdPrice)
         {
-            _logger = logger;
+            var settings = ShopSettings.GetInstance();
+            if (settings.Currency == "EUR") return new EuroAdapter().GetConvertedPrice(usdPrice);
+            if (settings.Currency == "MDL") return new LeuAdapter().GetConvertedPrice(usdPrice);
+            return $"${usdPrice}";
         }
 
         public void OnGet()
         {
-            // 1. Singleton: Получаем настройки и название магазина
+            // Просто обновляем данные при загрузке
+        }
+
+        // 1. Смена валюты (Adapter)
+        public IActionResult OnPostChangeCurrency(string currency)
+        {
+            ShopSettings.GetInstance().Currency = currency;
+            ShopSettings.GetInstance().AddLog($"Валюта изменена на {currency}");
+            return RedirectToPage();
+        }
+
+        // 2. Добавление в корзину
+        public IActionResult OnPostAddToCart(string item, double price)
+        {
             var settings = ShopSettings.GetInstance();
-            StoreName = settings.StoreName;
+            string formattedPrice = FormatPrice(price);
+            settings.Cart.Add($"{item} ({formattedPrice})");
+            settings.AddLog($"В корзину добавлен: {item}");
+            return RedirectToPage();
+        }
+
+        // 3. Оформление заказа (Factory Method)
+        public IActionResult OnPostCheckout(string deliveryType)
+        {
+            var settings = ShopSettings.GetInstance();
+            if (settings.Cart.Count == 0) return RedirectToPage();
+
+            // Используем Factory Method для выбора доставки
+            DeliveryService logistics = deliveryType == "air" ? new AirLogistics() : new GroundLogistics();
+            var delivery = logistics.CreateDelivery();
+
+            // Создаем объект заказа и сохраняем его (для Prototype)
+            var order = new SimpleOrder(string.Join(", ", settings.Cart), 0) { CustomerName = "Никита" };
+            settings.CompletedOrders.Add(order);
+
+            settings.AddLog($"Заказ оформлен! {delivery.GetDeliveryInfo()}");
+            settings.Cart.Clear(); // Очищаем корзину
             
-            // 2. Abstract Factory: Создаем товар и аксессуар
-            IShopFactory factory = new PremiumShopFactory();
-            var gadget = factory.CreateGadget();
-            var accessory = factory.CreateAccessory();
-            settings.AddToHistory($"[Factory] Выставлен товар: {gadget.GetDetails()}");
-            settings.AddToHistory($"[Factory] Рекомендуем к покупке: {accessory.GetDetails()}");
+            return RedirectToPage();
+        }
 
-            // 3. Builder: Собираем игровой ПК
-            var manager = new ShopManager();
-            var builder = new GamingComputerBuilder();
-            manager.Construct(builder);
-            var pc = builder.GetResult();
-            settings.AddToHistory($"[Builder] Собрана конфигурация: {string.Join(" | ", pc.GetParts())}");
-
-            // 4. Factory Method: Рассчитываем доставку
-            DeliveryService deliveryService = new AirLogistics();
-            settings.AddToHistory($"[Logistics] {deliveryService.GetFinalStatus()}");
-
-            // 5. Prototype: Клонируем заказ для повторной покупки
-            var originalOrder = new SimpleOrder("Игровой Монитор", 450) { CustomerName = "Никита" };
-            var repeatOrder = (SimpleOrder)originalOrder.Clone();
-            repeatOrder.CustomerName = "Повторный заказ (Никита)";
-            settings.AddToHistory($"[Prototype] Оригинал: {originalOrder.GetSummary()}");
-            settings.AddToHistory($"[Prototype] Клон: {repeatOrder.GetSummary()}");
-
-            // Загружаем всю накопленную историю для отображения в браузере
-            ShopHistory = settings.GetHistory();
+        // 4. Повтор последнего заказа (Prototype)
+        public IActionResult OnPostRepeatLast()
+        {
+            var settings = ShopSettings.GetInstance();
+            if (settings.CompletedOrders.Count > 0)
+            {
+                var lastOrder = settings.CompletedOrders[settings.CompletedOrders.Count - 1];
+                var clonedOrder = (SimpleOrder)lastOrder.Clone();
+                settings.AddLog($"[Prototype] Скопирован заказ: {clonedOrder.ProductName}");
+            }
+            return RedirectToPage();
         }
     }
 }

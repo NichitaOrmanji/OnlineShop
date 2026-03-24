@@ -5,55 +5,47 @@ namespace OnlineShop
 {
     public class ShopSettings
     {
-        // 1. Поле для хранения единственного экземпляра
         private static ShopSettings? _instance;
-        
-        // Объект-заглушка для потокобезопасности (актуально для Веб-сайта)
         private static readonly object _lock = new object();
 
-        // 2. Данные магазина
+        // Данные магазина
         public string Currency { get; set; } = "USD";
-        public string StoreName { get; set; } = "Pattern Tech Store";
-        public DateTime LastUpdate { get; private set; }
+        public string StoreName { get; set; } = "TechPoint Pro Store";
+        public DateTime SystemStartTime { get; private set; }
 
-        private List<string> _orderHistory = new List<string>();
+        // --- НОВЫЕ ПОЛЯ ДЛЯ ФУНКЦИОНАЛА ---
+        public List<string> Cart { get; set; } = new List<string>(); // Текущая корзина
+        public List<SimpleOrder> CompletedOrders { get; set; } = new List<SimpleOrder>(); // История реальных заказов
+        private List<string> _systemLog = new List<string>(); // Технический лог для админки
 
-        // 3. Приватный конструктор (согласно книге)
         private ShopSettings() 
         {
-            LastUpdate = DateTime.Now;
+            SystemStartTime = DateTime.Now;
+            AddLog("Система TechPoint инициализирована.");
         }
 
-        // 4. Глобальная точка доступа (Thread-Safe Singleton)
         public static ShopSettings GetInstance()
         {
-            // Используем double-check locking для надежности в веб-среде
             if (_instance == null)
             {
                 lock (_lock)
                 {
-                    if (_instance == null)
-                    {
-                        _instance = new ShopSettings();
-                    }
+                    if (_instance == null) _instance = new ShopSettings();
                 }
             }
             return _instance;
         }
 
-        // Методы работы с историей
-        public void AddToHistory(string entry) 
+        // Метод для записи действий (заменяет старый AddToHistory)
+        public void AddLog(string entry) 
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            _orderHistory.Add($"[{timestamp}] {entry}");
+            _systemLog.Add($"[{timestamp}] {entry}");
         }
 
-        public List<string> GetHistory() => _orderHistory;
+        public List<string> GetLogs() => _systemLog;
 
-        public void ChangeCurrency(string newCurrency)
-        {
-            Currency = newCurrency;
-            AddToHistory($"Валюта магазина изменена на {newCurrency}");
-        }
+        // Для обратной совместимости, если где-то остался вызов GetHistory
+        public List<string> GetHistory() => _systemLog;
     }
 }

@@ -3,33 +3,33 @@ using System;
 namespace OnlineShop
 {
     // 1. Абстрактные продукты (Интерфейсы)
-    // Согласно книге, каждый продукт семейства должен иметь свой интерфейс
+    // Каждый интерфейс представляет отдельный тип товара в магазине техники
     public interface IGadget { string GetDetails(); }
-    public interface IClothing { string GetDetails(); }
+    public interface ILaptop { string GetDetails(); }
     public interface IAccessory { string GetDetails(); }
 
     // 2. Абстрактная фабрика (Abstract Factory)
-    // Объявляет интерфейс для операций, создающих абстрактные объекты-продукты
+    // Создает целое семейство связанных товаров (например, только Apple или только Android/Windows)
     public interface IShopFactory
     {
         IGadget CreateGadget();
-        IClothing CreateClothing();
+        ILaptop CreateLaptop();
         IAccessory CreateAccessory(); 
     }
 
-    // 3. Конкретная фабрика: Premium (Конкретизирует создание продуктов семейства)
+    // 3. Конкретная фабрика: Premium (Семейство Apple/High-end)
     public class PremiumShopFactory : IShopFactory
     {
         public IGadget CreateGadget() => new iPhone();
-        public IClothing CreateClothing() => new SilkShirt();
+        public ILaptop CreateLaptop() => new MacBook();
         public IAccessory CreateAccessory() => new AppleWatch();
     }
 
-    // 4. Конкретная фабрика: Budget
+    // 4. Конкретная фабрика: Budget (Семейство доступной техники)
     public class BudgetShopFactory : IShopFactory
     {
         public IGadget CreateGadget() => new AndroidPhone();
-        public IClothing CreateClothing() => new CottonTShirt();
+        public ILaptop CreateLaptop() => new Chromebook();
         public IAccessory CreateAccessory() => new WiredHeadphones();
     }
 
@@ -37,33 +37,33 @@ namespace OnlineShop
 
     public class iPhone : IGadget 
     { 
-        public string GetDetails() => "Смартфон: iPhone 15 Pro, 256GB, Titanium Finish. Цена: $1199"; 
+        public string GetDetails() => "Смартфон: iPhone 15 Pro, 256GB, Titanium. Цена: $1199"; 
     }
 
-    public class SilkShirt : IClothing 
+    public class MacBook : ILaptop 
     { 
-        public string GetDetails() => "Одежда: Рубашка из натурального шелка, Premium Slim Fit. Цена: $150"; 
+        public string GetDetails() => "Ноутбук: MacBook Pro 14, M3 Max, 32GB RAM. Цена: $3200"; 
     }
 
     public class AppleWatch : IAccessory 
     { 
-        public string GetDetails() => "Аксессуар: Apple Watch Ultra 2, Titanium Case, Ocean Band. Цена: $799"; 
+        public string GetDetails() => "Аксессуар: Apple Watch Ultra 2, Titanium Case. Цена: $799"; 
     }
 
     // --- Реализации продуктов для Бюджетного сегмента ---
 
     public class AndroidPhone : IGadget 
     { 
-        public string GetDetails() => "Смартфон: Samsung Galaxy A54, 128GB, Awesome Graphite. Цена: $449"; 
+        public string GetDetails() => "Смартфон: Samsung Galaxy A54, 128GB. Цена: $449"; 
     }
 
-    public class CottonTShirt : IClothing 
+    public class Chromebook : ILaptop 
     { 
-        public string GetDetails() => "Одежда: Футболка 100% Хлопок, Классический крой. Цена: $25"; 
+        public string GetDetails() => "Ноутбук: Acer Chromebook, 4GB RAM, 64GB eMMC. Цена: $299"; 
     }
 
     public class WiredHeadphones : IAccessory 
     { 
-        public string GetDetails() => "Аксессуар: Наушники-вкладыши с микрофоном (3.5мм). Цена: $15"; 
+        public string GetDetails() => "Аксессуар: Наушники-вкладыши проводные (3.5мм). Цена: $15"; 
     }
 }
