@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OnlineShop;
+
 namespace OnlineShopProject_TMPPP.Pages 
 {
     public class IndexModel : PageModel
@@ -16,7 +17,6 @@ namespace OnlineShopProject_TMPPP.Pages
 
         public void OnGet()
         {
-            // Просто обновляем данные при загрузке
         }
 
         // 1. Смена валюты (Adapter)
@@ -27,13 +27,52 @@ namespace OnlineShopProject_TMPPP.Pages
             return RedirectToPage();
         }
 
-        // 2. Добавление в корзину
+        // 2. Добавление одиночного товара
         public IActionResult OnPostAddToCart(string item, double price)
         {
             var settings = ShopSettings.GetInstance();
             string formattedPrice = FormatPrice(price);
             settings.Cart.Add($"{item} ({formattedPrice})");
             settings.AddLog($"В корзину добавлен: {item}");
+            return RedirectToPage();
+        }
+
+        // --- НОВЫЙ МЕТОД: Покупка линейки товаров (Abstract Factory) ---
+        public IActionResult OnPostBuyGadget(string type)
+        {
+            var settings = ShopSettings.GetInstance();
+            // Выбираем конкретную фабрику
+            IShopFactory factory = type == "premium" ? new PremiumShopFactory() : new BudgetShopFactory();
+            
+            // Создаем продукты через фабрику
+            var gadget = factory.CreateGadget();
+            var laptop = factory.CreateLaptop();
+            
+            // Добавляем в корзину сразу комплектом
+            settings.Cart.Add($"Комплект: {gadget.GetDetails()}");
+            settings.Cart.Add($"Комплект: {laptop.GetDetails()}");
+            
+            settings.AddLog($"[Abstract Factory] Добавлен комплект оборудования ({type})");
+            return RedirectToPage();
+        }
+
+        // --- НОВЫЙ МЕТОД: Сборка ПК (Builder) ---
+        public IActionResult OnPostBuildPc(string pcType)
+        {
+            var settings = ShopSettings.GetInstance();
+            var manager = new ShopManager();
+            
+            // Выбираем строителя
+            IComputerBuilder builder = pcType == "gaming" ? new GamingComputerBuilder() : new OfficeComputerBuilder();
+            
+            // Процесс пошаговой сборки
+            manager.Construct(builder);
+            var pc = builder.GetResult();
+            
+            // Добавляем результат сборки в корзину
+            settings.Cart.Add($"Сборка ПК ({pcType}): {string.Join(", ", pc.GetParts())}");
+            
+            settings.AddLog($"[Builder] Сформирована конфигурация {pcType} ПК");
             return RedirectToPage();
         }
 
@@ -52,7 +91,7 @@ namespace OnlineShopProject_TMPPP.Pages
             settings.CompletedOrders.Add(order);
 
             settings.AddLog($"Заказ оформлен! {delivery.GetDeliveryInfo()}");
-            settings.Cart.Clear(); // Очищаем корзину
+            settings.Cart.Clear(); 
             
             return RedirectToPage();
         }
@@ -69,5 +108,12 @@ namespace OnlineShopProject_TMPPP.Pages
             }
             return RedirectToPage();
         }
+        public IActionResult OnPostRemoveFromCart(int index)
+        {
+                var settings = ShopSettings.GetInstance();
+                settings.RemoveFromCart(index);
+                return RedirectToPage();
+        }
     }
+
 }

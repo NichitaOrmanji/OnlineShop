@@ -36,6 +36,17 @@ namespace OnlineShop
             return _instance;
         }
 
+        // --- НОВЫЙ МЕТОД: Удаление из корзины ---
+        public void RemoveFromCart(int index)
+        {
+            if (index >= 0 && index < Cart.Count)
+            {
+                string removedItem = Cart[index];
+                Cart.RemoveAt(index);
+                AddLog($"Товар удален из корзины: {removedItem}");
+            }
+        }
+
         // Метод для записи действий (заменяет старый AddToHistory)
         public void AddLog(string entry) 
         {

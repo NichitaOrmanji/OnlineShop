@@ -12,38 +12,36 @@
         <form method="post" asp-page-handler="ChangeCurrency" class="d-flex align-items-center">
             <span class="me-2 small text-muted">Валюта:</span>
             <select name="currency" onchange="this.form.submit()" class="form-select form-select-sm">
-                @if (settings.Currency == "USD")
-                {
-                    <option value="USD" selected>USD ($)</option>
-                }
-                else
-                {
-                    <option value="USD">USD ($)</option>
-                }
-                @if (settings.Currency == "EUR")
-                {
-                    <option value="EUR" selected>EUR (€)</option>
-                }
-                else
-                {
-                    <option value="EUR">EUR (€)</option>
-                }
-                @if (settings.Currency == "MDL")
-                {
-                    <option value="MDL" selected>MDL (L)</option>
-                }
-                else
-                {
-                    <option value="MDL">MDL (L)</option>
-                }
+                @if (settings.Currency == "USD") { <option value="USD" selected>USD ($)</option> }
+                else { <option value="USD">USD ($)</option> }
+
+                @if (settings.Currency == "EUR") { <option value="EUR" selected>EUR (€)</option> }
+                else { <option value="EUR">EUR (€)</option> }
+
+                @if (settings.Currency == "MDL") { <option value="MDL" selected>MDL (L)</option> }
+                else { <option value="MDL">MDL (L)</option> }
             </select>
         </form>
     </div>
 
     <div class="row">
         <div class="col-md-8">
-            <h4 class="mb-4">📱 Доступные гаджеты</h4>
-            <div class="row g-3">
+            
+            <h4 class="mb-3 text-secondary">🌟 Готовые комплекты (Abstract Factory)</h4>
+            <div class="card p-3 mb-4 bg-light border-0 shadow-sm">
+                <p class="small text-muted">Закупить экосистему устройств в один клик:</p>
+                <div class="d-flex gap-2">
+                    <form method="post" asp-page-handler="BuyGadget" asp-route-type="premium">
+                        <button class="btn btn-primary btn-sm">Купить Premium (Apple)</button>
+                    </form>
+                    <form method="post" asp-page-handler="BuyGadget" asp-route-type="budget">
+                        <button class="btn btn-outline-secondary btn-sm">Купить Budget (Android)</button>
+                    </form>
+                </div>
+            </div>
+
+            <h4 class="mb-3">📱 Популярные гаджеты</h4>
+            <div class="row g-3 mb-5">
                 <div class="col-md-6">
                     <div class="card shadow-sm border-0 p-3">
                         <h5>iPhone 15 Pro</h5>
@@ -63,48 +61,83 @@
                     </div>
                 </div>
             </div>
+
+            <h4 class="mb-3 text-secondary">🖥️ Кастомные сборки (Builder)</h4>
+            <div class="card p-4 border-0 shadow-sm bg-dark text-white mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <h6 class="mb-1 text-warning">Конфигуратор системных блоков</h6>
+                        <p class="small text-light opacity-75 mb-0">Пошаговый подбор комплектующих специалистом</p>
+                    </div>
+                    <div class="col-md-5 text-end">
+                        <form method="post" asp-page-handler="BuildPc" asp-route-pcType="gaming" class="d-inline">
+                            <button class="btn btn-warning btn-sm fw-bold me-1">Gaming PC</button>
+                        </form>
+                        <form method="post" asp-page-handler="BuildPc" asp-route-pcType="office" class="d-inline">
+                            <button class="btn btn-outline-light btn-sm">Office Work</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow border-0 p-3 bg-light">
-                <h4 class="d-flex justify-content-between">
-                    🛒 Корзина 
+            <div class="card shadow border-0 p-3 bg-light position-sticky" style="top: 20px;">
+                <h4 class="d-flex justify-content-between align-items-center">
+                    🛒 Ваша корзина 
                     <span class="badge bg-primary rounded-pill">@settings.Cart.Count</span>
                 </h4>
                 <hr>
-                <ul class="list-unstyled mb-4">
-                    @if (settings.Cart.Count == 0) {
-                        <li class="text-muted small text-center">Корзина пуста</li>
-                    }
-                    @foreach (var item in settings.Cart) {
-                        <li class="border-bottom py-1 small">✅ @item</li>
-                    }
-                </ul>
+                
+                <div style="max-height: 250px; overflow-y: auto;" class="mb-3">
+                    <ul class="list-group list-group-flush">
+                        @if (settings.Cart.Count == 0) {
+                            <li class="list-group-item bg-transparent text-muted small text-center border-0 py-4">Корзина пока пуста</li>
+                        }
+                        @for (int i = 0; i < settings.Cart.Count; i++) {
+                            <li class="list-group-item bg-transparent py-2 small d-flex justify-content-between align-items-center border-bottom-0">
+                                <span class="text-truncate" style="max-width: 85%;">✅ @settings.Cart[i]</span>
+                                
+                                <form method="post" asp-page-handler="RemoveFromCart" asp-route-index="@i">
+                                    <button type="submit" class="btn btn-link text-danger p-0 m-0" style="text-decoration: none; line-height: 1;">
+                                        <b style="font-size: 1.3rem;">&times;</b>
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                </div>
                 
                 @if (settings.Cart.Count > 0) {
-                    <form method="post" asp-page-handler="Checkout">
-                        <label class="small fw-bold">Доставка:</label>
-                        <select name="deliveryType" class="form-select form-select-sm mb-3">
-                            <option value="air">✈️ Авиа (Быстро)</option>
-                            <option value="ground">🚚 Наземная (Обычная)</option>
-                        </select>
-                        <button class="btn btn-success w-100 fw-bold">Оформить заказ</button>
-                    </form>
+                    <div class="p-2 border rounded bg-white mb-3 shadow-sm">
+                        <form method="post" asp-page-handler="Checkout">
+                            <label class="small fw-bold mb-1 text-uppercase" style="font-size: 0.65rem; color: #666;">Доставка (Factory Method):</label>
+                            <select name="deliveryType" class="form-select form-select-sm mb-3 border-primary">
+                                <option value="air">✈ Авиа (Экспресс)</option>
+                                <option value="ground">🚚 Наземная (Эконом)</option>
+                            </select>
+                            <button class="btn btn-success w-100 fw-bold shadow-sm">Оформить заказ</button>
+                        </form>
+                    </div>
                 }
-            </div>
 
-            <form method="post" asp-page-handler="RepeatLast" class="mt-3">
-                <button class="btn btn-link btn-sm w-100 text-decoration-none">🔁 Повторить прошлый заказ</button>
-            </form>
+                <form method="post" asp-page-handler="RepeatLast">
+                    <button class="btn btn-link btn-sm w-100 text-decoration-none text-info p-0">
+                        <small>🔁 Повторить прошлый заказ (Prototype)</small>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="mt-5 border-top pt-3">
+    <div class="mt-5 pt-4 border-top">
         <details>
-            <summary class="text-muted small" style="cursor:pointer">System Debug Log (Singleton)</summary>
-            <div class="bg-dark text-success p-3 rounded mt-2 small shadow-inner" style="max-height: 200px; overflow-y: auto; font-family: monospace;">
+            <summary class="text-muted small" style="cursor:pointer">System Event Log (Singleton Records)</summary>
+            <div class="bg-dark text-success p-3 rounded mt-2 small shadow-inner" style="max-height: 200px; overflow-y: auto; font-family: 'Consolas', monospace;">
                 @foreach (var log in settings.GetLogs().AsEnumerable().Reverse()) {
-                    <div>> @log</div>
+                    <div class="mb-1 border-bottom border-secondary pb-1" style="border-style: dashed !important;">
+                        <span class="text-warning">>></span> @log
+                    </div>
                 }
             </div>
         </details>
