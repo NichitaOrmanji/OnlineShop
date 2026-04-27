@@ -40,26 +40,71 @@
                 </div>
             </div>
 
-            <h4 class="mb-3">📱 Популярные гаджеты</h4>
+            <h4 class="mb-3">📱 Каталог товаров <span class="badge bg-secondary fs-6">(Strategy)</span></h4>
+
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+                <span class="small text-muted align-self-center me-1">Сортировка:</span>
+                <a href="?sort=price_asc" 
+                    class="btn btn-sm @(Model.CurrentSortName == "Цена: по возрастанию" ? "btn-primary" : "btn-outline-primary")">
+                    ↑ Цена
+                </a>
+                <a href="?sort=price_desc" 
+                    class="btn btn-sm @(Model.CurrentSortName == "Цена: по убыванию" ? "btn-primary" : "btn-outline-primary")">
+                    ↓ Цена
+                </a>
+                <a href="?sort=name" 
+                    class="btn btn-sm @(Model.CurrentSortName == "Название: А-Я" ? "btn-primary" : "btn-outline-primary")">
+                    А-Я Название
+                </a>
+            </div>
+
+            <p class="small text-muted mb-3">
+                Активная стратегия: <strong class="text-primary">@Model.CurrentSortName</strong>
+            </p>
+
             <div class="row g-3 mb-5">
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0 p-3">
-                        <h5>iPhone 15 Pro</h5>
-                        <p class="text-primary fw-bold">@Model.FormatPrice(1199)</p>
-                        <form method="post" asp-page-handler="AddToCart" asp-route-item="iPhone 15 Pro" asp-route-price="1199">
-                            <button class="btn btn-outline-primary w-100">В корзину</button>
-                        </form>
+                @foreach (var product in Model.SortedProducts)
+                {
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0 p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h5 class="mb-0">@product.Name</h5>
+                                <span class="badge bg-light text-secondary border" style="font-size:0.65rem;">
+                                    @product.Category
+                                </span>
+                            </div>
+                            <p class="text-primary fw-bold mb-2">@Model.FormatPrice(product.Price)</p>
+
+                            <form method="post" asp-page-handler="AddToCart"
+                                asp-route-item="@product.Name"
+                                asp-route-price="@product.Price">
+
+                                <!-- Чекбокс подарочной упаковки — Decorator опциональный -->
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="giftWrap" value="true" 
+                                           id="gift_@product.Name.Replace(" ", "_")">
+                                    <label class="form-check-label small text-muted" 
+                                           for="gift_@product.Name.Replace(" ", "_")">
+                                        🎁 Подарочная упаковка <span class="text-success fw-bold">+$10</span>
+                                        <span class="badge bg-light text-secondary border ms-1" style="font-size:0.6rem;">Decorator</span>
+                                    </label>
+                                </div>
+
+                                @if (product.Price >= 1000)
+                                {
+                                    <div class="small text-muted mb-2" style="font-size:0.72rem;">
+                                        🛡 Расширенная гарантия <span class="text-warning fw-bold">+$200</span> 
+                                        <span class="text-muted">(авто для премиум)</span>
+                                        <span class="badge bg-light text-secondary border ms-1" style="font-size:0.6rem;">Decorator</span>
+                                    </div>
+                                }
+
+                                <button class="btn btn-outline-primary w-100 btn-sm">В корзину</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0 p-3">
-                        <h5>MacBook Pro 14</h5>
-                        <p class="text-primary fw-bold">@Model.FormatPrice(2500)</p>
-                        <form method="post" asp-page-handler="AddToCart" asp-route-item="MacBook Pro 14" asp-route-price="2500">
-                            <button class="btn btn-outline-primary w-100">В корзину</button>
-                        </form>
-                    </div>
-                </div>
+                }
             </div>
 
             <h4 class="mb-3 text-secondary">🖥️ Кастомные сборки (Builder)</h4>
@@ -88,7 +133,27 @@
                     <span class="badge bg-primary rounded-pill">@settings.Cart.Count</span>
                 </h4>
                 <hr>
-                
+
+                <!-- Observer — панель наблюдателей -->
+                <div class="card border-0 bg-white shadow-sm p-2 mb-3">
+                    <p class="small fw-bold text-uppercase mb-2" style="font-size:0.65rem; color:#888;">
+                        👁 Observer — живые данные
+                    </p>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Счётчик товаров:</span>
+                        <span class="fw-bold text-primary">@Model.ObserverItemCount шт.</span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Итого (USD):</span>
+                        <span class="fw-bold text-success">$@Model.ObserverTotal.ToString("F2")</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ObserverLastLog)) {
+                        <div class="small text-muted mt-1 border-top pt-1" style="font-size:0.7rem;">
+                            📋 @Model.ObserverLastLog
+                        </div>
+                    }
+                </div>
+
                 <div style="max-height: 250px; overflow-y: auto;" class="mb-3">
                     <ul class="list-group list-group-flush">
                         @if (settings.Cart.Count == 0) {
@@ -97,7 +162,6 @@
                         @for (int i = 0; i < settings.Cart.Count; i++) {
                             <li class="list-group-item bg-transparent py-2 small d-flex justify-content-between align-items-center border-bottom-0">
                                 <span class="text-truncate" style="max-width: 85%;">✅ @settings.Cart[i]</span>
-                                
                                 <form method="post" asp-page-handler="RemoveFromCart" asp-route-index="@i">
                                     <button type="submit" class="btn btn-link text-danger p-0 m-0" style="text-decoration: none; line-height: 1;">
                                         <b style="font-size: 1.3rem;">&times;</b>
@@ -107,6 +171,14 @@
                         }
                     </ul>
                 </div>
+
+                @if (Model.CanUndo) {
+                    <form method="post" asp-page-handler="UndoCart" class="mb-2">
+                        <button class="btn btn-outline-warning w-100 btn-sm fw-bold">
+                            ↩ Отменить последнее действие (Command)
+                        </button>
+                    </form>
+                }
                 
                 @if (settings.Cart.Count > 0) {
                     <div class="p-2 border rounded bg-white mb-3 shadow-sm">
